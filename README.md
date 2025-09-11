@@ -4,12 +4,14 @@ A modern, responsive frontend application for ByteBooks - a small business accou
 
 ## Features
 
-- **Dashboard**: Overview with financial statistics and charts
+- **Dashboard**: Overview with financial statistics and charts (Upcoming - Only for Admin)
 - **Entries Management**: Add, view, and manage income/expense entries
 - **Customer Management**: Add and manage customer information
 - **Employee Management**: Add and manage employee records
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Modern UI**: Built with shadcn/ui components and TailwindCSS
+- **Landing Page**: Page to signup new user as Personal or Business _(Upcoming)_
+- **Authentication & Authorization**: Add User based access _(Upcoming)_
+- **Bill Generation**: Generate Bill for customers _(Upcoming)_
+
 
 ## Tech Stack
 
