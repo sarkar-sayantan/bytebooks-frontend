@@ -26,8 +26,6 @@ export interface CreateEntryRequest {
   amount: number;
   description?: string;
   date: string;
-  email: string;
-  phone: string;
 }
 
 // Customer Types

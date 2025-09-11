@@ -21,11 +21,7 @@ const entrySchema = z.object({
   amount: z.number().min(0.01, 'Amount must be greater than 0'),
   description: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string()
-    .min(1, 'Phone number is required')
-    .refine((val) => val.length === 10, 'Phone number must be exactly 10 digits')
-    .refine((val) => /^\d+$/.test(val), 'Phone number must contain only digits'),
+
 });
 
 type EntryFormData = z.infer<typeof entrySchema>;
@@ -158,37 +154,7 @@ export function EntryForm({ onSuccess }: EntryFormProps) {
             {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter email address"
-                {...register('email')}
-              />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="Enter 10-digit phone number"
-                maxLength={10}
-                {...register('phone', {
-                  onChange: (e) => {
-                    // Only allow numeric input
-                    const value = e.target.value.replace(/\D/g, '');
-                    e.target.value = value;
-                  }
-                })}
-              />
-              <p className="text-xs text-gray-500">Must be exactly 10 digits</p>
-              {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
-            </div>
-          </div>
 
           <Button type="submit" className="w-full" disabled={createEntry.isPending}>
             {createEntry.isPending ? 'Creating...' : 'Create Entry'}
