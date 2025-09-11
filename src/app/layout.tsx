@@ -27,7 +27,7 @@ export default function RootLayout({
             <Toaster />
           </TenantProvider>
         </QueryProvider>
-        <GoogleAnalytics gaId="G-DX9YCGLSJC" />
+        <GoogleAnalytics gaId="G-25TYNNMMSD" />
       </body>
     </html>
   );
