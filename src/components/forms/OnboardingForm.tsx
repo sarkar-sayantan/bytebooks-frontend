@@ -7,10 +7,25 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { apiClient } from "@/services/apiClient";
+import { setGlobal } from "next/dist/trace";
+import { setGlobalTenantId } from "../providers/TenantProvider";
 
 export default function OnboardingForm() {
   const { data: session } = useSession();
   const user = session?.user;
+
+  
+  const [step, setStep] = useState<"choose" | "business">("choose");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    name: "",
+    address: "",
+    gstNumber: "",
+    registrationNumber: "",
+    businessPhone: "",
+    businessEmail: "",
+  });
 
   async function handlePersonalSubmit() {
     setLoading(true);
@@ -28,7 +43,9 @@ export default function OnboardingForm() {
           image: user?.image,
           role: "OWNER",
         });
+        setGlobalTenantId(tenant.id as string);
       }
+      
       window.location.href = "/dashboard";
     } catch (err: any) {
       setError(err?.message || "Failed to register personal account.");
@@ -36,19 +53,6 @@ export default function OnboardingForm() {
       setLoading(false);
     }
   }
-  const [step, setStep] = useState<"choose" | "business">("choose");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    address: "",
-    gstNumber: "",
-    registrationNumber: "",
-    businessPhone: "",
-    businessEmail: "",
-  });
-
-
 
 
   async function handleBusinessSubmit(e: React.FormEvent) {
@@ -72,8 +76,9 @@ export default function OnboardingForm() {
         name: user?.name,
         email: user?.email,
         image: user?.image,
-        role: "OWNER",
+        role: "ADMIN",
       });
+      setGlobalTenantId(tenant.id as string);
       }
       window.location.href = "/dashboard";
     } catch (err: any) {

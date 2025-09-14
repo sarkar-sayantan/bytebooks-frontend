@@ -1,58 +1,52 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosHeaders } from 'axios';
 import { getTenantId } from '@/components/providers/TenantProvider';
+import { getSession } from "next-auth/react";
 
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
+    const teantId = getTenantId();
     this.client = axios.create({
       baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
+        'X-Tenant-ID': teantId || '', // Default tenant ID header
       },
     });
 
-    // Request interceptor
     this.client.interceptors.request.use(
-      (config) => {
-        // Add auth token if available (client-side only)
-        if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('authToken');
-          const headers = config.headers instanceof AxiosHeaders
-            ? config.headers
-            : new AxiosHeaders(config.headers);
-          if (token) headers.set('Authorization', `Bearer ${token}`);
-          const tenantId = getTenantId();
-          headers.set('X-Tenant-ID', tenantId);
-          config.headers = headers;
-          return config;
+      async (config) => {
+        // Only on client-side
+        if (typeof window !== "undefined") {
+          const session = await getSession();
+          if (!session) {
+            // No session, redirect immediately
+            window.location.href = "/";
+            return Promise.reject("No session found");
+          }
+
+          // Optionally, send access token in Authorization header
+          if (session?.user?.accessToken) {
+            const headers = config.headers instanceof AxiosHeaders
+              ? config.headers
+              : new AxiosHeaders(config.headers);
+            headers.set("Authorization", `Bearer ${session.user.accessToken}`);
+            config.headers = headers;
+          }
         }
-        // Server-side: still ensure tenant header is set
-        const headers = config.headers instanceof AxiosHeaders
-          ? config.headers
-          : new AxiosHeaders(config.headers);
-        headers.set('X-Tenant-ID', getTenantId());
-        config.headers = headers;
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
     // Response interceptor
     this.client.interceptors.response.use(
-      (response: AxiosResponse) => {
-        return response;
-      },
+      (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized access (client-side only)
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('authToken');
-            window.location.href = '/login';
-          }
+        if (error.response?.status === 401 && typeof window !== "undefined") {
+          window.location.href = "/";
         }
         return Promise.reject(error);
       }

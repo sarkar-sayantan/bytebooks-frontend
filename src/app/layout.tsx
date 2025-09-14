@@ -6,6 +6,8 @@ import { TenantProvider } from '@/components/providers/TenantProvider';
 import { Toaster } from 'sonner';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { SessionProvider } from 'next-auth/react';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,6 +21,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en">
       <body className={inter.className}>

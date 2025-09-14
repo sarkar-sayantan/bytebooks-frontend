@@ -1,5 +1,4 @@
 "use client";
-
 import { use, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -11,6 +10,7 @@ import { employeesService } from "@/services/employees";
 import { Home } from "lucide-react";
 import HomePage from "@/app/page";
 import OnboardingForm from "@/components/forms/OnboardingForm";
+import { setGlobalTenantId } from "@/components/providers/TenantProvider";
 
 export default function CheckUserAndOnboard() {
   const { data: session, status } = useSession();
@@ -23,6 +23,7 @@ export default function CheckUserAndOnboard() {
   useEffect(() => {
     if (status !== "authenticated") {
       setChecking(false);
+      router.push("/");
       return;
     }
 
@@ -65,6 +66,7 @@ export default function CheckUserAndOnboard() {
         if (employee && employee.tenantId) {
           // 3) Employee exists — auto-create user with role EMPLOYEE
           try {
+            setGlobalTenantId(employee.tenantId);
             const newUserPayload = {
               tenantId: employee.tenantId,
               name: session?.user?.name ?? undefined,
@@ -113,7 +115,7 @@ export default function CheckUserAndOnboard() {
     return () => {
       mounted = false;
     };
-  }, [status, session, router]);
+  }, [status, router]);
 
   // UX states
   if (status === "loading" || checking) {

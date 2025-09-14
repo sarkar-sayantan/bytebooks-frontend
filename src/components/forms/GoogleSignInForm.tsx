@@ -2,13 +2,12 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button"
-import { use } from "react";
+
 
 export default function GoogleSignIn() {
   return (
     <form action={async () => {
-        //"use server";
-        await signIn("google");
+        await signIn("google", { callbackUrl: '/onboarding' });
       }}>
       <Button
         type="submit"

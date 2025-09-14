@@ -1,18 +1,25 @@
 
-
-
+"use client";
 import GoogleSignIn from '@/components/forms/GoogleSignInForm';
 import { Button } from '@/components/ui/button';
-import { redirect } from 'next/navigation';
-import { auth } from '@/auth';
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
-export default async function HomePage() {
+export default function HomePage() {
 
-  var session = await auth();
-  if (session?.user) {
-    redirect('/onboarding'); 
-  }
+  const { data: session, status } = useSession();
+  const router = useRouter();
   
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      // Redirect to onboarding if user already signed in
+      router.push('/onboarding');
+    }
+  }, [status, session, router]);
+
+
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background bg-gray-200 text-foreground p-4">
       <div className="max-w-md w-full text-center space-y-8">
