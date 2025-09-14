@@ -28,6 +28,10 @@ export const employeesService = {
     return apiClient.get<Employee>(`/employees/detail/${id}`);
   },
 
+  async getEmployeesByEmail(email: string): Promise<Employee> {
+    return apiClient.get<Employee>(`/employees/email/${email}`);
+  },
+
   // Update an employee
   async updateEmployee(id: string, employee: Partial<CreateEmployeeRequest>): Promise<Employee> {
     return apiClient.put<Employee>(`/employees/detail/${id}`, employee);

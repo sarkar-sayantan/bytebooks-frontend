@@ -5,6 +5,7 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { TenantProvider } from '@/components/providers/TenantProvider';
 import { Toaster } from 'sonner';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { SessionProvider } from 'next-auth/react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   description: 'A modern accounting application for small businesses',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -22,13 +23,17 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <QueryProvider>
-          <TenantProvider>
-            {children}
-            <Toaster />
-          </TenantProvider>
+          <SessionProvider>
+            <TenantProvider>
+              {children}
+              <Toaster />
+            </TenantProvider>
+          </SessionProvider>
         </QueryProvider>
         <GoogleAnalytics gaId="G-25TYNNMMSD" />
       </body>
     </html>
   );
 }
+
+

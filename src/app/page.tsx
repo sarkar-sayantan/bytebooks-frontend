@@ -1,11 +1,20 @@
 
 
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 
-export default function HomePage() {
+import GoogleSignIn from '@/components/forms/GoogleSignInForm';
+import { Button } from '@/components/ui/button';
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
+
+export default async function HomePage() {
+
+  var session = await auth();
+  if (session?.user) {
+    redirect('/onboarding'); 
+  }
+  
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background bg-gray-200 text-foreground p-4">
       <div className="max-w-md w-full text-center space-y-8">
         <div className="mx-auto mb-6 flex items-center justify-center">
           {/* Minimalistic, eye-catching icon */}
@@ -31,7 +40,7 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col items-center gap-4">
           <Button asChild size="lg" className="w-full md:w-auto text-lg font-semibold shadow-lg" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-            <Link href="/dashboard">Start Now</Link>
+            <GoogleSignIn />
           </Button>
           <span className="text-xs text-muted-foreground">Your business, your rules. No setup required.</span>
         </div>
