@@ -11,13 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCreateEntry } from '@/hooks/useEntries';
-import { useCategories } from '@/hooks/useCategories';
+import { useCategories, useCreateCategory } from '@/hooks/useCategories';
 import { CreateEntryRequest } from '@/types';
 import { toast } from 'sonner';
 
 const entrySchema = z.object({
   type: z.enum(['income', 'expense']),
-  categoryId: z.string().min(1, 'Category is required'),
+  categoryName: z.string().min(1, 'Category is required'),
   amount: z.number().min(0.01, 'Amount must be greater than 0'),
   description: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
@@ -51,24 +51,46 @@ export function EntryForm({ onSuccess }: EntryFormProps) {
     },
   });
 
+  const createCategory = useCreateCategory();
+
   const onSubmit = async (data: EntryFormData) => {
     try {
-      console.log('Form data being submitted:', data);
-      
+      console.log("Form data:", data);
+
+      // Step 1: resolve category
+      let categoryId: string | null = null;
+      const existingCategory = categories.find(
+        (c) => c.name.toLowerCase() === data.categoryName.toLowerCase()
+      );
+
+      if (existingCategory) {
+        categoryId = existingCategory.id;
+      } else {
+        const newCategory = await createCategory.mutateAsync({
+          name: data.categoryName,
+          type: selectedType
+        });
+        categoryId = newCategory.id;
+      }
+
+      // Step 2: create entry with categoryId
       const entryData: CreateEntryRequest = {
         ...data,
+        categoryId,
         description: data.description || undefined,
       };
-      
+      delete (entryData as any).categoryName; // remove helper field
+
       await createEntry.mutateAsync(entryData);
-      toast.success('Entry created successfully!');
+      toast.success("Entry created successfully!");
       reset();
       onSuccess?.();
     } catch (error) {
-      toast.error('Failed to create entry');
-      console.error('Error creating entry:', error);
+      toast.error("Failed to create entry");
+      console.error("Error creating entry:", error);
     }
   };
+
 
   return (
     <Card>
@@ -76,7 +98,9 @@ export function EntryForm({ onSuccess }: EntryFormProps) {
         <CardTitle>Add New Entry</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit, (formErrors) => {
+    console.log("Form validation errors:", formErrors);
+  })} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
@@ -99,25 +123,23 @@ export function EntryForm({ onSuccess }: EntryFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select onValueChange={(value) => setValue('categoryId', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {isCategoriesLoading ? (
-                    <SelectItem value="loading" disabled>Loading...</SelectItem>
-                  ) : (
-                    categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              {errors.categoryId && <p className="text-sm text-red-500">{errors.categoryId.message}</p>}
-            </div>
+            <Label htmlFor="category">Category</Label>
+            <Input
+              id="category"
+              placeholder="Type or select category"
+              list="category-list"
+              {...register('categoryName')}
+            />
+            <datalist id="category-list">
+              {categories.map((category) => (
+                <option key={category.id} value={category.name} />
+              ))}
+            </datalist>
+            {errors.categoryName && (
+              <p className="text-sm text-red-500">{errors.categoryName.message}</p>
+            )}
+          </div>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

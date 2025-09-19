@@ -7,11 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { apiClient } from "@/services/apiClient";
-import { setGlobal } from "next/dist/trace";
-import { setGlobalTenantId } from "../providers/TenantProvider";
 
 export default function OnboardingForm() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const user = session?.user;
 
   
@@ -43,8 +41,8 @@ export default function OnboardingForm() {
           image: user?.image,
           role: "OWNER",
         });
-        setGlobalTenantId(tenant.id as string);
       }
+      await update();
       
       window.location.href = "/dashboard";
     } catch (err: any) {
@@ -78,8 +76,9 @@ export default function OnboardingForm() {
         image: user?.image,
         role: "ADMIN",
       });
-      setGlobalTenantId(tenant.id as string);
       }
+
+      await update();
       window.location.href = "/dashboard";
     } catch (err: any) {
       setError(err?.message || "Failed to register business.");

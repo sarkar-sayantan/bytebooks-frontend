@@ -1,16 +1,12 @@
 "use client";
-import { use, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { apiClient } from "@/services/apiClient"; // your axios/fetch wrapper
-import OnboardingPage from "@/app/onboarding/page"; // your onboarding UI component (as in previous code)
-import { userService } from "@/services/user";
-import { Employee, User } from "@/types";
-import { employeesService } from "@/services/employees";
-import { Home } from "lucide-react";
 import HomePage from "@/app/page";
 import OnboardingForm from "@/components/forms/OnboardingForm";
-import { setGlobalTenantId } from "@/components/providers/TenantProvider";
+import { employeesService } from "@/services/employees";
+import { userService } from "@/services/user";
+import { Employee, User } from "@/types";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CheckUserAndOnboard() {
   const { data: session, status } = useSession();
@@ -66,7 +62,6 @@ export default function CheckUserAndOnboard() {
         if (employee && employee.tenantId) {
           // 3) Employee exists — auto-create user with role EMPLOYEE
           try {
-            setGlobalTenantId(employee.tenantId);
             const newUserPayload = {
               tenantId: employee.tenantId,
               name: session?.user?.name ?? undefined,
@@ -111,7 +106,6 @@ export default function CheckUserAndOnboard() {
         if (mounted) setChecking(false);
       }
     })();
-
     return () => {
       mounted = false;
     };
