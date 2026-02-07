@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { entriesService } from '@/services/entries';
 import { CreateEntryRequest, EntryFilters } from '@/types';
-import { useTenant } from '@/components/providers/TenantProvider';
+import { useSession } from 'next-auth/react';
 
 export const useEntries = (filters?: EntryFilters) => {
-  const { tenant } = useTenant();
+  const { data: session } = useSession();
+
   return useQuery({
-    queryKey: ['entries', tenant.id, filters],
+    queryKey: ['entries', session?.user?.tenantId, filters],
     queryFn: () => entriesService.getEntries(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -53,18 +54,18 @@ export const useDeleteEntry = () => {
 };
 
 export const useDashboardStats = () => {
-  const { tenant } = useTenant();
+  const { data: session } = useSession();
   return useQuery({
-    queryKey: ['dashboard-stats', tenant.id],
+    queryKey: ['dashboard-stats', session?.user?.tenantId],
     queryFn: () => entriesService.getDashboardStats(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
 export const useChartData = (year?: number) => {
-  const { tenant } = useTenant();
+  const { data: session } = useSession();
   return useQuery({
-    queryKey: ['chart-data', tenant.id, year],
+    queryKey: ['chart-data', session?.user?.tenantId, year],
     queryFn: () => entriesService.getChartData(year),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

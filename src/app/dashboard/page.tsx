@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDashboardStats, useChartData } from '@/hooks/useEntries';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { TrendingUp, TrendingDown, IndianRupee, Calendar } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
   const { data: stats, isLoading: statsLoading, error: statsError } = useDashboardStats();
   const { data: chartData, isLoading: chartLoading, error: chartError } = useChartData();
-
+  const {data: session} = useSession();
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',

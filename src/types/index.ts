@@ -66,6 +66,27 @@ export interface CreateEmployeeRequest {
   roleId: string;
 }
 
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  tenantId?: string;
+  role: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+  image?: string;
+  tenantId?: string;
+  role: string;
+}
+
+
 // Dashboard Types
 export interface DashboardStats {
   totalIncome: number;

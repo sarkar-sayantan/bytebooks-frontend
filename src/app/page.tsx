@@ -1,11 +1,27 @@
 
-
+"use client";
+import GoogleSignIn from '@/components/forms/GoogleSignInForm';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      // Redirect to onboarding if user already signed in
+      router.push('/onboarding');
+    }
+  }, [status, session, router]);
+
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background bg-gray-200 text-foreground p-4">
       <div className="max-w-md w-full text-center space-y-8">
         <div className="mx-auto mb-6 flex items-center justify-center">
           {/* Minimalistic, eye-catching icon */}
@@ -31,7 +47,7 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col items-center gap-4">
           <Button asChild size="lg" className="w-full md:w-auto text-lg font-semibold shadow-lg" style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-            <Link href="/dashboard">Start Now</Link>
+            <GoogleSignIn />
           </Button>
           <span className="text-xs text-muted-foreground">Your business, your rules. No setup required.</span>
         </div>
